@@ -1,19 +1,21 @@
 """
-This class implements the YoloDetector. It is used to detect elements in a
-given image or batch of images. It uses YOLOv6 as the backbone of the detector.
+This class the YOLOv7 QR Detector. It uses a YOLOv7-tiny model trained to detect QR codes in the wild.
 
 Author: Eric Canas.
-Github: https://github.com/Eric-Canas
+Github: https://github.com/Eric-Canas/qrdet
 Email: eric@ericcanas.com
 Date: 11-12-2022
 """
 
 from __future__ import annotations
+import os
+import requests
+import tqdm
 from yolov7_package import Yolov7Detector
 import numpy as np
-import os
 
-_WEIGHTS = os.path.join(os.path.dirname(__file__), '.yolov7_qrdet', 'qrdet-yolov7-tiny.pt')
+_WEIGHTS_PATH = os.path.join(os.path.dirname(__file__), '.yolov7_qrdet', 'qrdet-yolov7-tiny.pt')
+_WEIGHTS_URL = 'https://github.com/Eric-Canas/qrdet/blob/main/.yolov7_qrdet/qrdet-yolov7-tiny.pt?raw=true'
 
 
 class QRDetector:
@@ -21,7 +23,9 @@ class QRDetector:
         """
         Initialize the QRDetector. It loads the weights of the YOLOv7 model and prepares it for inference.
         """
-        self.model = Yolov7Detector(weights=_WEIGHTS, img_size=None, agnostic_nms=True, traced=False)
+        if not os.path.exists(_WEIGHTS_PATH):
+            self.__download_weights(url=_WEIGHTS_URL, path=_WEIGHTS_PATH)
+        self.model = Yolov7Detector(weights=_WEIGHTS_PATH, img_size=None, agnostic_nms=True, traced=False)
         # Warm the model up.
         self.model.detect(np.zeros((16, 16, 3), dtype=np.uint8))
 
@@ -58,6 +62,34 @@ class QRDetector:
             return tuple((bbox, conf) for bbox, conf in zip(bboxes, dets[2][0]))
         else:
             return bboxes
+
+    def __download_weights(self, url: str, path: str = _WEIGHTS_PATH,
+                           desc: str = 'Downloading weights...') -> None:
+        """
+        Download the weights of the YOLOv7 model.
+        :param url: str. The url of the weights.
+        :param path: str. The path to save the weights. Default: _WEIGHTS_PATH.
+        :param desc: str. The description of the download. Default: 'Downloading YOLOv7 QRDetector weights...'.
+        """
+        assert not os.path.isfile(path), f'Expected the weights to not exist. Found them at {path}.'
+        # Create the directory to save the weights.
+        if not os.path.exists(os.path.dirname(path)):
+            os.makedirs(os.path.dirname(path))
+
+        # Download the weights.
+        response = requests.get(url, stream=True)
+        total_size_in_bytes = int(response.headers.get('content-length', 0))
+        with tqdm.tqdm(total=total_size_in_bytes, unit='iB', unit_scale=True, desc=desc) as progress_bar:
+            with open(path, 'wb') as file:
+                for data in response.iter_content(chunk_size=1024):
+                    progress_bar.update(len(data))
+                    file.write(data)
+
+        # Check the weights were downloaded correctly.
+        if total_size_in_bytes != 0 and progress_bar.n != total_size_in_bytes:
+            # Delete the weights if the download failed.
+            os.remove(path)
+            raise Exception('Error, something went wrong while downloading the weights.')
 
 def _clip_bbox(bbox: list[float, float, float, float], h: int, w: int, as_float:bool = False) -> \
                 list[int | float, int | float, int | float, int | float]:
