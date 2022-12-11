@@ -1,0 +1,2 @@
+numpy>=1.20.3
+yolov7-package >= 0.0.12
