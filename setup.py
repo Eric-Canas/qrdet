@@ -2,10 +2,10 @@ from setuptools import setup, find_namespace_packages
 
 setup(
     name='qrdet',
-    version='1.1',
+    version='1.3',
     packages=find_namespace_packages(),
     # expose qreader.py as the unique module
-    py_modules=['QRDetector'],
+    py_modules=['qrdet'],
     url='https://github.com/Eric-Canas/qrdet',
     license='MIT',
     author='Eric Canas',
@@ -17,11 +17,9 @@ setup(
         'numpy',
         'yolov7-package',
     ],
-    # To include the __yolo_v3_qr_detector weights in the package, we need to add the following line:
-    include_package_data=True,
-    # To include the __yolo_v3_qr_detector weights in the package, we need to add the following line:
-    data_files=[('.yolov7_qrdet',
-                 ['.yolov7_qrdet/qrdet-yolov7-tiny.pt'])],
+    #include_package_data=True,
+    #data_files=[('.yolov7_qrdet',
+    #             ['.yolov7_qrdet/qrdet-yolov7.pt'])],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',

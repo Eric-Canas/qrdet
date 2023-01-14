@@ -1,4 +1,4 @@
-from QRDetector import QRDetector
+from qrdet import QRDetector
 import cv2
 
 if __name__ == '__main__':
