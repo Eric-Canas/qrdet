@@ -14,8 +14,8 @@ import tqdm
 from yolov7_package import Yolov7Detector
 import numpy as np
 
-_WEIGHTS_PATH = os.path.join(os.path.dirname(__file__), '.yolov7_qrdet', 'qrdet-yolov7-tiny.pt')
-_WEIGHTS_URL = 'https://github.com/Eric-Canas/qrdet/blob/main/.yolov7_qrdet/qrdet-yolov7-tiny.pt?raw=true'
+_WEIGHTS_PATH = os.path.join(os.path.dirname(__file__), '.yolov7_qrdet', 'qrdet-yolov7.pt')
+_WEIGHTS_URL = 'https://github.com/Eric-Canas/qrdet/blob/main/.yolov7_qrdet/qrdet-yolov7.pt?raw=true'
 
 
 class QRDetector:
