@@ -47,8 +47,8 @@ class QRDetector:
         assert image.dtype == np.uint8, f'Expected image to be of type np.uint8. Got {image.dtype}.'
         assert len(image.shape) == 3, f'Expected image to have 3 dimensions (H, W, RGB). Got {image.shape}.'
         assert image.shape[2] == 3, f'Expected image to have 3 channels (RGB). Got {image.shape[2]}.'
-        # Transform the image from BGR to RGB if necessary (used when the image is read with OpenCV).
-        if is_bgr:
+        # Transform the image from RGB to BGR (that's the format that yolov7_package expects).
+        if not is_bgr:
             image = image[:, :, ::-1]
         dets = self.model.detect(image)
         # Check the detections return what it was expected (can be deleted after enough testing)
