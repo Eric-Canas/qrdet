@@ -33,7 +33,7 @@ for (x1, y1, x2, y2), confidence in detections:
 cv2.imwrite(filename='resources/qreader_test_image_detections.jpeg', img=image)
 ```
 
-<img alt="detections_output" title="detections_output" src="./resources/qreader_test_image_detections.jpeg" width="100%">
+<img alt="detections_output" title="detections_output" src="https://github.com/Eric-Canas/qrdet/blob/main/resources/qreader_test_image_detections.jpeg" width="100%">
 
 ## API Reference
 
