@@ -42,7 +42,7 @@ cv2.imwrite(filename='resources/qreader_test_image_detections.jpeg', img=image)
 - ``image``: **np.ndarray**. NumPy Array containing the ``image`` to decode. The image is expected to be in ``uint8`` format [_HxWxC_], RGB or BGR depending on the ``is_bgr`` parameter.
 - ``return_confidences``: **bool**. If `True`, the output will be in the format ``(((x1, y1, x2, y2), confidence), ...)``. Otherwise, it will be in the format `((x1, y1, x2, y2), ...)`. Default: `True`. 
 - ``return_confidences``: **bool**. If `True`, the returned coordinates will be returned as `float`, with the complete precision outputted from the **detection model**. Otherwise, they will be rounded to the closest integer. Default: `False`.
-- `` is_bgr``: **bool**. If `True` the image is expected to be in ``BGR``. Otherwise, it will be expected to be ``RGB``. Default: `False`
+- ``is_bgr``: **bool**. If `True` the image is expected to be in ``BGR``. Otherwise, it will be expected to be ``RGB``. Default: `False`
 
 - Returns: **tuple[tuple[tuple[int, int, int, int], float], ...] | tuple[tuple[int, int, int, int]]**: A tuple with the coordinates of all detected **QR** codes. If ``return_confidences`` is `True`, the output will look like: ``(((x1, y1, x2, y2), confidence), ...)``. If ``return_confidences`` is `False` it will look like: `((x1, y1, x2, y2), ...)`.
 
