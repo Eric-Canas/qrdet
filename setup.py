@@ -2,7 +2,7 @@ from setuptools import setup, find_namespace_packages
 
 setup(
     name='qrdet',
-    version='1.8',
+    version='1.9',
     packages=find_namespace_packages(),
     # expose qreader.py as the unique module
     py_modules=['qrdet'],
@@ -14,12 +14,10 @@ setup(
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     install_requires=[
-        'numpy',
         'yolov7-package',
+        'requests',
+        'tqdm'
     ],
-    #include_package_data=True,
-    #data_files=[('.yolov7_qrdet',
-    #             ['.yolov7_qrdet/qrdet-yolov7.pt'])],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',

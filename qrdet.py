@@ -12,7 +12,6 @@ import os
 import requests
 import tqdm
 from yolov7_package import Yolov7Detector
-import numpy as np
 
 _WEIGHTS_PATH = os.path.join(os.path.dirname(__file__), '.yolov7_qrdet', 'qrdet-yolov7.pt')
 _WEIGHTS_URL = 'https://github.com/Eric-Canas/qrdet/releases/download/first_qrdet_yolov7/qrdet-yolov7.pt'
@@ -26,10 +25,8 @@ class QRDetector:
         if not os.path.exists(_WEIGHTS_PATH):
             self.__download_weights(url=_WEIGHTS_URL, path=_WEIGHTS_PATH)
         self.model = Yolov7Detector(weights=_WEIGHTS_PATH, img_size=None, agnostic_nms=True, traced=False)
-        # Warm the model up.
-        self.model.detect(np.zeros((16, 16, 3), dtype=np.uint8))
 
-    def detect(self, image: np.ndarray, return_confidences: bool = True, as_float: bool = False, is_bgr: bool = False) \
+    def detect(self, image, return_confidences: bool = True, as_float: bool = False, is_bgr: bool = False) \
             -> tuple[tuple[list[float, float, float, float], float], ...] | tuple[list[float, float, float, float], ...]:
         """
         Detect QR codes in the given image.
@@ -43,8 +40,8 @@ class QRDetector:
                     the tuple contains the confidence of the detection as well (((x1, y1, x2, y2), confidence),...).
         """
         # Check the image is in the correct format.
-        assert type(image) is np.ndarray, f'Expected image to be a numpy array. Got {type(image)}.'
-        assert image.dtype == np.uint8, f'Expected image to be of type np.uint8. Got {image.dtype}.'
+        assert 'ndarray' in str(type(image)), f'Expected image to be a numpy array. Got {type(image)}.'
+        assert 'uint8' in image.dtype.name, f'Expected image to be of type np.uint8. Got {image.dtype}.'
         assert len(image.shape) == 3, f'Expected image to have 3 dimensions (H, W, RGB). Got {image.shape}.'
         assert image.shape[2] == 3, f'Expected image to have 3 channels (RGB). Got {image.shape[2]}.'
         # Transform the image from RGB to BGR (that's the format that yolov7_package expects).
@@ -71,6 +68,7 @@ class QRDetector:
         :param path: str. The path to save the weights. Default: _WEIGHTS_PATH.
         :param desc: str. The description of the download. Default: 'Downloading YOLOv7 QRDetector weights...'.
         """
+        self.downloading_model = True
         assert not os.path.isfile(path), f'Expected the weights to not exist. Found them at {path}.'
         # Create the directory to save the weights.
         if not os.path.exists(os.path.dirname(path)):
@@ -89,7 +87,18 @@ class QRDetector:
         if total_size_in_bytes != 0 and progress_bar.n != total_size_in_bytes:
             # Delete the weights if the download failed.
             os.remove(path)
-            raise Exception('Error, something went wrong while downloading the weights.')
+            raise EOFError('Error, something went wrong while downloading the weights.')
+        self.downloading_model = False
+
+    def __del__(self):
+        # If the weights didn't finish downloading, delete them.
+        if hasattr(self, 'downloading_model') and self.downloading_model and os.path.isfile(_WEIGHTS_PATH):
+            os.remove(_WEIGHTS_PATH)
+            # Also remove the directory (just in case something became corrupted).
+            _dir = os.path.dirname(_WEIGHTS_PATH)
+            if os.path.exists(_dir):
+                os.rmdir(_dir)
+
 
 def _clip_bbox(bbox: list[float, float, float, float], h: int, w: int, as_float:bool = False) -> \
                 list[int | float, int | float, int | float, int | float]:
