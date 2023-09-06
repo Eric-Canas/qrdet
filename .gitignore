@@ -3,3 +3,4 @@ __pycache__/
 qrdet.egg-info/
 dist/
 .yolov7_qrdet/
+qrdet/.model/

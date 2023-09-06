@@ -1,3 +1,6 @@
-yolov7-package >= 0.0.12
-tqdm>=4.64.1
-requests>=2.28.1
+ultralytics
+quadrilateral-fitter
+
+numpy
+requests
+tqdm

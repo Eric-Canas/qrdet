@@ -2,19 +2,21 @@ from setuptools import setup, find_namespace_packages
 
 setup(
     name='qrdet',
-    version='1.9',
-    packages=find_namespace_packages(),
-    # expose qreader.py as the unique module
-    py_modules=['qrdet'],
-    url='https://github.com/Eric-Canas/qrdet',
-    license='MIT',
+    version='2.0',
+    author_email='eric@ericcanas.com',
     author='Eric Canas',
-    author_email='elcorreodeharu@gmail.com',
-    description='Robust QR Detector based on YOLOv7',
+    url='https://github.com/Eric-Canas/qrdet',
+    description='Robust QR Detector based on YOLOv8',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
+    packages=find_namespace_packages(),
+    # expose qreader.py as the unique module
+    license='MIT',
     install_requires=[
-        'yolov7-package',
+        'ultralytics',
+        'quadrilateral-fitter',
+
+        'numpy',
         'requests',
         'tqdm'
     ],
