@@ -49,7 +49,7 @@ cv2.imwrite(filename='resources/qreader_test_image_detections.jpeg', img=image)
 - **Returns**: **tuple[dict[str, np.ndarray|float|tuple[float|int, float|int]]]**. A tuple of dictionaries containing the following keys:
     - `confidence`: **float**. The confidence of the detection.
     - `bbox_xyxy`: **np.ndarray**. The bounding box of the detection in the format **(x1, y1, x2, y2)**, dtype: `np.float32`.
-    - `cxcy`:** tuple[float, float]**. The center of the bounding box in the format **(x, y)**.
+    - `cxcy`: **tuple[float, float]**. The center of the bounding box in the format **(x, y)**.
     - `wh`: **tuple[float, float]**. The width and height of the bounding box in the format **(w, h)**.
     - `polygon_xy`: **np.ndarray**. The accurate polygon that surrounds the QR code, with shape **(N, 2)**.
     - `quadrilateral_xy`: **np.ndarray**. The quadrilateral that surrounds the QR code, with shape **(4, 2)**, dtype: `np.float32`.
