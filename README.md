@@ -1,7 +1,7 @@
 # QRDet
-**QRDet** is a robust **QR Detector** based on <a href="https://github.com/WongKinYiu/yolov7" target="_blank">YOLOv7</a>.
+**QRDet** is a robust **QR Detector** based on <a href="https://github.com/ultralytics/ultralytics" target="_blank">YOLOv8</a>.
 
-**QRDet** will detect **QR** codes even in **difficult** positions or **tricky** images. If you are looking for a complete **QR Detection** + **Decoding** pipeline, take a look at <a href="https://github.com/Eric-Canas/qreader" target="_blank">QReader</a>.  
+**QRDet** will detect & segment **QR** codes even in **difficult** positions or **tricky** images. If you are looking for a complete **QR Detection** + **Decoding** pipeline, take a look at <a href="https://github.com/Eric-Canas/qreader" target="_blank">QReader</a>.  
 
 ## Installation
 
@@ -20,12 +20,15 @@ There is only one function you'll need to call to use **QRDet**, ``detect``:
 from qrdet import QRDetector
 import cv2
 
-detector = QRDetector()
+detector = QRDetector(model_size='s')
 image = cv2.imread(filename='resources/qreader_test_image.jpeg')
 detections = detector.detect(image=image, is_bgr=True)
 
 # Draw the detections
-for (x1, y1, x2, y2), confidence in detections:
+for detection in detections:
+    x1, y1, x2, y2 = detections['bbox_xyxy']
+    confidence = detections['confidence']
+    segmenation_xy = detections['quadrilateral_xy']
     cv2.rectangle(image, (x1, y1), (x2, y2), color=(0, 255, 0), thickness=2)
     cv2.putText(image, f'{confidence:.2f}', (x1, y1 - 10), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                 fontScale=1, color=(0, 255, 0), thickness=2)
@@ -37,17 +40,27 @@ cv2.imwrite(filename='resources/qreader_test_image_detections.jpeg', img=image)
 
 ## API Reference
 
-### QReader.detect(image, return_confidences = True, as_float = False, is_bgr = False)
+### QReader.detect(image, is_bgr = False, **kwargs)
 
-- ``image``: **np.ndarray**. NumPy Array containing the ``image`` to decode. The image is expected to be in ``uint8`` format [_HxWxC_], RGB or BGR depending on the ``is_bgr`` parameter.
-- ``return_confidences``: **bool**. If `True`, the output will be in the format ``(((x1, y1, x2, y2), confidence), ...)``. Otherwise, it will be in the format `((x1, y1, x2, y2), ...)`. Default: `True`. 
-- ``return_confidences``: **bool**. If `True`, the returned coordinates will be returned as `float`, with the complete precision outputted from the **detection model**. Otherwise, they will be rounded to the closest integer. Default: `False`.
-- ``is_bgr``: **bool**. If `True` the image is expected to be in ``BGR``. Otherwise, it will be expected to be ``RGB``. Default: `False`
+- ``image``: **np.ndarray|'PIL.Image'|'torch.Tensor'|str**. `np.ndarray` of shape **(H, W, 3)**, `PIL.Image`, `Tensor` of shape **(1, 3, H, W)**, or `path`/`url` to the image to predict. `'screen'` for grabbing a screenshot.
+- ``is_bgr``: **bool**. If `True` the image is expected to be in **BGR**. Otherwise, it will be expected to be **RGB**. Only used when image is `np.ndarray` or `torch.tensor`. Default: `False`
+- ``legacy``: **bool**. If sent as **kwarg**, will parse the output to make it identical to 1.x versions. Not Recommended. Default: False.
 
-- Returns: **tuple[tuple[tuple[int, int, int, int], float], ...] | tuple[tuple[int, int, int, int]]**: A tuple with the coordinates of all detected **QR** codes. If ``return_confidences`` is `True`, the output will look like: ``(((x1, y1, x2, y2), confidence), ...)``. If ``return_confidences`` is `False` it will look like: `((x1, y1, x2, y2), ...)`.
+- **Returns**: **tuple[dict[str, np.ndarray|float|tuple[float|int, float|int]]]**. A tuple of dictionaries containing the following keys:
+    - `confidence`: **float**. The confidence of the detection.
+    - `bbox_xyxy`: **np.ndarray**. The bounding box of the detection in the format **(x1, y1, x2, y2)**, dtype: `np.float32`.
+    - `cxcy`:** tuple[float, float]**. The center of the bounding box in the format **(x, y)**.
+    - `wh`: **tuple[float, float]**. The width and height of the bounding box in the format **(w, h)**.
+    - `polygon_xy`: **np.ndarray**. The accurate polygon that surrounds the QR code, with shape **(N, 2)**.
+    - `quadrilateral_xy`: **np.ndarray**. The quadrilateral that surrounds the QR code, with shape **(4, 2)**, dtype: `np.float32`.
+    - `expanded_quadrilateral_xy`: **np.ndarray**. An expanded version of quadrilateral_xy, with shape **(4, 2)**, dtype: `np.float32`, that always include all the points within `'polygon_xy'`.
+    - `image_shape`: **tuple[int, int]**. Shape of the input image, in the format **(h, w)**.
+
+All these keys (except `'confidence'` and `'image_shape'`) have a `'n'` (_normalized_) version. For example, `'bbox_xyxy'` is the bounding box in **absolute coordinates**, while `'bbox_xyxyn'` is the bounding box in **normalized** coordinates (from 0. to 1.).
 
 ## Acknowledgements
 
 This library is based on the following projects:
 
-- <a href="https://github.com/WongKinYiu/yolov7" target="_blank">YoloV7</a> model for **Object Detection**.
+- <a href="https://github.com/ultralytics/ultralytics" target="_blank">YoloV8</a> model for **Object Segmentation**.
+- <a href="https://github.com/Eric-Canas/quadrilateral-fitter" target="_blank">QuadrilateralFitter</a> for fitting 4 corners polygons from noisy **segmentation outputs**.
