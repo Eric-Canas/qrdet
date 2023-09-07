@@ -12,10 +12,10 @@ WHN = f'{WH}n'
 # -------- POLYGON KEYS --------
 POLYGON_XY = 'polygon_xy'
 POLYGON_XYN = f'{POLYGON_XY}n'
-EXPANDED_QUADRILATERAL_XY = 'expanded_quadrilateral_xy'
-EXPANDED_QUADRILATERAL_XYN = f'{EXPANDED_QUADRILATERAL_XY}n'
-QUADRILATERAL_XY = 'quadrilateral_xy'
-QUADRILATERAL_XYN = f'{QUADRILATERAL_XY}n'
+PADDED_QUAD_XY = 'padded_quad_xy'
+PADDED_QUAD_XYN = f'{PADDED_QUAD_XY}n'
+QUAD_XY = 'quad_xy'
+QUAD_XYN = f'{QUAD_XY}n'
 
 # -------- IMAGE KEYS --------
 IMAGE_SHAPE = 'image_shape'

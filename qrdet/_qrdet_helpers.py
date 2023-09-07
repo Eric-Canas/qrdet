@@ -3,8 +3,8 @@ from __future__ import annotations
 from ultralytics.engine.results import Results
 
 from qrdet import BBOX_XYXY, BBOX_XYXYN, POLYGON_XY, POLYGON_XYN,\
-    CXCY, CXCYN, WH, WHN, IMAGE_SHAPE, CONFIDENCE, EXPANDED_QUADRILATERAL_XY, EXPANDED_QUADRILATERAL_XYN,\
-    QUADRILATERAL_XY, QUADRILATERAL_XYN
+    CXCY, CXCYN, WH, WHN, IMAGE_SHAPE, CONFIDENCE, PADDED_QUAD_XY, PADDED_QUAD_XYN,\
+    QUAD_XY, QUAD_XYN
 
 from quadrilateral_fitter import QuadrilateralFitter
 import numpy as np
@@ -87,10 +87,10 @@ def _yolo_v8_results_to_dict(results: Results, image: np.ndarray) -> \
 
             POLYGON_XY: accurate_polygon_xy,
             POLYGON_XYN: accurate_polygon_xyn,
-            EXPANDED_QUADRILATERAL_XY: expanded_quadrilateral_xy,
-            EXPANDED_QUADRILATERAL_XYN: expanded_quadrilateral_xyn,
-            QUADRILATERAL_XY: quadrilateral_xy,
-            QUADRILATERAL_XYN: quadrilateral_xyn,
+            QUAD_XY: quadrilateral_xy,
+            QUAD_XYN: quadrilateral_xyn,
+            PADDED_QUAD_XY: expanded_quadrilateral_xy,
+            PADDED_QUAD_XYN: expanded_quadrilateral_xyn,
 
             IMAGE_SHAPE: (im_h, im_w),
         })
@@ -176,7 +176,7 @@ def _plot_result(image: np.ndarray, detections: tuple[dict[str, np.ndarray|float
         ax.text(bbox_xyxy[0], bbox_xyxy[1] - 2, f'{confidence:.2f}', fontsize=10, color='yellow')
 
         # Plot the quadrilateral, tight quadrilateral and polygon
-        quadrilateral_xy = detection[QUADRILATERAL_XY]
+        quadrilateral_xy = detection[QUAD_XY]
         polygon_xy = detection[POLYGON_XY]
         # Repeat the first point to close the polygon
         polygon_xy = np.vstack((polygon_xy, polygon_xy[0]))

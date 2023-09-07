@@ -52,8 +52,10 @@ class QRDetector:
         """
         Detect QR codes in the given image.
 
-        :param image: str|np.ndarray|PIL.Image|torch.Tensor. Numpy array (RGB or BGR) or path/url to the image to predict.
-        :param legacy: bool. Whether to use the legacy version of QRDetector, compatible with 1.x versions. Default: False.
+        :param image: str|np.ndarray|PIL.Image|torch.Tensor. Numpy array (H, W, 3), Tensor (1, 3, H, W), or
+                                            path/url to the image to predict. 'screen' for grabbing a screenshot.
+        :param legacy: bool. If sent as **kwarg**, will parse the output to make it identical to 1.x versions.
+                            Not Recommended. Default: False.
         :return: tuple[dict[str, np.ndarray|float|tuple[float, float]]]. A tuple of dictionaries containing the
             following keys:
             - 'confidence': float. The confidence of the detection.
