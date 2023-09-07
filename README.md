@@ -46,17 +46,23 @@ cv2.imwrite(filename='resources/qreader_test_image_detections.jpeg', img=image)
 - ``is_bgr``: **bool**. If `True` the image is expected to be in **BGR**. Otherwise, it will be expected to be **RGB**. Only used when image is `np.ndarray` or `torch.tensor`. Default: `False`
 - ``legacy``: **bool**. If sent as **kwarg**, will parse the output to make it identical to 1.x versions. Not Recommended. Default: False.
 
-- **Returns**: **tuple[dict[str, np.ndarray|float|tuple[float|int, float|int]]]**. A tuple of dictionaries containing the following keys:
-    - `confidence`: **float**. The confidence of the detection.
-    - `bbox_xyxy`: **np.ndarray**. The bounding box of the detection in the format **(x1, y1, x2, y2)**, dtype: `np.float32`.
-    - `cxcy`: **tuple[float, float]**. The center of the bounding box in the format **(x, y)**.
-    - `wh`: **tuple[float, float]**. The width and height of the bounding box in the format **(w, h)**.
-    - `polygon_xy`: **np.ndarray**. The accurate polygon that surrounds the QR code, with shape **(N, 2)**.
-    - `quadrilateral_xy`: **np.ndarray**. The quadrilateral that surrounds the QR code, with shape **(4, 2)**, dtype: `np.float32`.
-    - `expanded_quadrilateral_xy`: **np.ndarray**. An expanded version of quadrilateral_xy, with shape **(4, 2)**, dtype: `np.float32`, that always include all the points within `'polygon_xy'`.
-    - `image_shape`: **tuple[int, int]**. Shape of the input image, in the format **(h, w)**.
+- **Returns**: **tuple[dict[str, np.ndarray|float|tuple[float|int, float|int]]]**. A tuple of dictionaries containing all the information of every detection. Contains the following keys.
 
-All these keys (except `'confidence'` and `'image_shape'`) have a `'n'` (_normalized_) version. For example, `'bbox_xyxy'` is the bounding box in **absolute coordinates**, while `'bbox_xyxyn'` is the bounding box in **normalized** coordinates (from 0. to 1.).
+| Key              | Value Desc.                                 | Value Type                 | Value Form                  |
+|------------------|---------------------------------------------|----------------------------|-----------------------------|
+| `confidence`     | Detection confidence                        | `float`                    | `conf.`                     |
+| `bbox_xyxy`      | Bounding box                                | np.ndarray (**4**)         | `[x1, y1, x2, y2]`          |
+| `cxcy`           | Center of bounding box                      | tuple[`float`, `float`]    | `(x, y)`                    |
+| `wh`             | Bounding box width and height               | tuple[`float`, `float`]    | `(w, h)`                    |
+| `polygon_xy`     | Precise polygon that segments the _QR_      | np.ndarray (**N**, **2**)  | `[[x1, y1], [x2, y2], ...]` |
+| `quad_xy`        | Four corners polygon that segments the _QR_ | np.ndarray (**4**, **2**)  | `[[x1, y1], ..., [x4, y4]]` |
+| `padded_quad_xy` |`quad_xy` padded to fully cover `polygon_xy` | np.ndarray (**4**, **2**)  | `[[x1, y1], ..., [x4, y4]]` |
+| `image_shape`    | Shape of the input image                    | tuple[`float`, `float`]    | `(h, w)`                    |  
+
+> **NOTE:**
+> - All `np.ndarray` values are of type `np.float32` 
+> - All keys (except `confidence` and `image_shape`) have a normalized ('n') version. For example,`bbox_xyxy` represents the bbox of the QR in image coordinates [[0., im_w], [0., im_h]], while `bbox_xyxyn` contains the same bounding box in normalized coordinates [0., 1.].
+> - `bbox_xyxy[n]` and `polygon_xy[n]` are clipped to `image_shape`. You can use them for indexing without further management
 
 ## Acknowledgements
 
