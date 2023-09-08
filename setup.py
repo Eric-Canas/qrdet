@@ -2,7 +2,7 @@ from setuptools import setup, find_namespace_packages
 
 setup(
     name='qrdet',
-    version='2.1',
+    version='2.3',
     author_email='eric@ericcanas.com',
     author='Eric Canas',
     url='https://github.com/Eric-Canas/qrdet',

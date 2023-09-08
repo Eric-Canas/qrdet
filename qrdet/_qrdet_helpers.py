@@ -8,6 +8,7 @@ from qrdet import BBOX_XYXY, BBOX_XYXYN, POLYGON_XY, POLYGON_XYN,\
 
 from quadrilateral_fitter import QuadrilateralFitter
 import numpy as np
+from math import floor, ceil
 
 def _yolo_v8_results_to_dict(results: Results, image: np.ndarray) -> \
         tuple[dict[str, np.ndarray|float|tuple[float, float]]]:
@@ -95,6 +96,8 @@ def _yolo_v8_results_to_dict(results: Results, image: np.ndarray) -> \
             IMAGE_SHAPE: (im_h, im_w),
         })
 
+    crop_qr(image=image, detection=detections[0], crop_key=PADDED_QUAD_XYN)
+
     return detections
 
 def _prepare_input(source: str | np.ndarray | 'PIL.Image' | 'torch.Tensor', is_bgr: bool = False) ->\
@@ -153,6 +156,91 @@ def _prepare_input(source: str | np.ndarray | 'PIL.Image' | 'torch.Tensor', is_b
         raise TypeError(f"Expected source to be one of the following types: "
                         f"str|np.ndarray|PIL.Image|torch.Tensor. Got {type(source)}.")
     return source
+
+def crop_qr(image: np.ndarray, detection: dict[str, np.ndarray|float|tuple[float|int, float|int]],
+            crop_key: str = BBOX_XYXY) -> tuple[np.ndarray, dict[str, np.ndarray|float|tuple[float|int, float|int]]]:
+    """
+    Crop the QR code from the image.
+    :param image: np.ndarray. The image to crop the QR code from.
+    :param detection: dict[str, np.ndarray|float|tuple[float|int, float|int]]. The detection of the QR code returned
+                      by QRDetector.detect(). Take into account that this method will return a tuple of detections,
+                        and this function only expects one of them.
+    :param crop_key: str. The key of the detection to use to crop the QR code. It can be one of the following:
+                     'bbox_xyxy', 'bbox_xyn', 'quad_xy', 'quad_xyn', 'padded_quad_xy', 'padded_quad_xyn',
+                     'polygon_xy' or 'polygon_xyn'.
+    :return: tuple[np.ndarray, dict[str, np.ndarray|float|tuple[float|int, float|int]]]. The cropped QR code, and the
+                    updated detection to fit the cropped image.
+    """
+    if crop_key in (BBOX_XYXYN, QUAD_XYN, PADDED_QUAD_XYN, POLYGON_XYN):
+        # If it is normalized, transform it to absolute coordinates.
+        crop_key = crop_key[:-1]
+
+    # Get the surrounding box of the QR code
+    # If it is the bbox, that's actually the box itself
+    if crop_key == BBOX_XYXY:
+        x1, y1, x2, y2 = detection[crop_key]
+    # Otherwise, calculate the limits of the polygon
+    else:
+        (x1, y1), (x2, y2) = detection[crop_key].min(axis=0), detection[crop_key].max(axis=0)
+    x1, y1, x2, y2 = floor(x1), floor(y1), ceil(x2), ceil(y2)
+
+    h, w = image.shape[:2]
+    # Apply pad if needed
+    left_pad, top_pad = max(0, -x1), max(0, -y1)
+    right_pad, bottom_pad = max(0, x2 - w), max(0, y2 - h)
+
+    if any(pad > 0 for pad in (left_pad, top_pad, right_pad, bottom_pad)):
+        white = 255 if image.dtype == np.uint8 else 1.
+        assert np.max(image) <= white, f"Expected image to be in range [0, 255] if passed as np.uint8, or [0., 1.] " \
+                                          f"if passed as float. Got [{np.min(image)}, {np.max(image)}]."
+        # Apply pad if needed
+        if len(image.shape) == 3:
+            image = np.pad(image, ((top_pad, bottom_pad), (left_pad, right_pad), (0, 0)), mode='constant',
+                            constant_values=white)
+        else:
+            assert len(image.shape) == 2, f"Expected image to have 2 or 3 dimensions. Got {len(image.shape)}."
+            image = np.pad(image, ((top_pad, bottom_pad), (left_pad, right_pad)), mode='constant',
+                            constant_values=white)
+        h, w = image.shape[:2]
+        # Update the coordinates
+        x1, y1, x2, y2 = x1 + left_pad, y1 + top_pad, x2 + left_pad, y2 + top_pad
+        assert x1 >= 0. and y1 >= 0. and x2 <= w and y2 <= h, f"Padded coordinates are out of bounds range."
+        image = image[y1:y2, x1:x2]
+        x1, y1 = x1 - left_pad, y1 - top_pad
+    else:
+        image = image[y1:y2, x1:x2].copy()
+
+    # To avoid castings
+    x1, y1 = np.float32(x1), np.float32(y1)
+    # Update the detection to fit the cropped image
+    h, w = image.shape[:2]
+    pre_detection = detection.copy()
+    detection = detection.copy()
+    # Recalculate everything, (taking into account the padding)
+    detection.update({
+     BBOX_XYXY: np.array([0., 0., w, h], dtype=np.float32),
+     CXCY: (w / 2., h / 2.),
+     WH: (w, h),
+     POLYGON_XY: detection[POLYGON_XY] - (x1, y1),
+     QUAD_XY: detection[QUAD_XY] - (x1, y1),
+     PADDED_QUAD_XY: detection[PADDED_QUAD_XY] - (x1, y1),
+     IMAGE_SHAPE: (h, w),
+    })
+    # To avoid castings
+    h, w = np.float32(h), np.float32(w)
+    detection.update({
+        BBOX_XYXYN: np.array((0., 0., 1., 1.), dtype=np.float32),
+        CXCYN: (0.5, 0.5),
+        WHN: (1., 1.),
+        POLYGON_XYN: detection[POLYGON_XY] / (w, h),
+        QUAD_XYN: detection[QUAD_XY] / (w, h),
+        PADDED_QUAD_XYN: detection[PADDED_QUAD_XY] / (w, h),
+    })
+
+    return image, detection
+
+
+
 
 def _plot_result(image: np.ndarray, detections: tuple[dict[str, np.ndarray|float|tuple[float, float]]]):
     """
