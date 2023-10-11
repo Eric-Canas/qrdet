@@ -70,8 +70,9 @@ def _yolo_v8_results_to_dict(results: Results, image: np.ndarray) -> \
         expanded_quadrilateral_xyn = expanded_quadrilateral_xy/(im_w, im_h)
         quadrilateral_xyn = quadrilateral_xy/(im_w, im_h)
 
-        confidence = float(boxes.conf)
-        assert int(boxes.cls) == 0, f'Expected class to be always 0, got {int(boxes.cls)}'
+        assert len(boxes.conf) == 1, f'Expected confidence result to have length 1, got {len(result)}'
+        confidence = float(boxes.conf[0])
+        assert len(boxes.cls) == 1 and int(boxes.cls[0]) == 0, f'Expected class to be always [0], got {boxes.cls}'
 
         # Calculate center and width/height of the bounding box (post-clipping)
         cx, cy = float((bbox_xyxy[0] + bbox_xyxy[2])/2), float((bbox_xyxy[1] + bbox_xyxy[3])/2)
