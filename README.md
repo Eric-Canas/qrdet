@@ -26,9 +26,9 @@ detections = detector.detect(image=image, is_bgr=True)
 
 # Draw the detections
 for detection in detections:
-    x1, y1, x2, y2 = detections['bbox_xyxy']
-    confidence = detections['confidence']
-    segmenation_xy = detections['quadrilateral_xy']
+    x1, y1, x2, y2 = detection['bbox_xyxy']
+    confidence = detection['confidence']
+    segmenation_xy = detection['quadrilateral_xy']
     cv2.rectangle(image, (x1, y1), (x2, y2), color=(0, 255, 0), thickness=2)
     cv2.putText(image, f'{confidence:.2f}', (x1, y1 - 10), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                 fontScale=1, color=(0, 255, 0), thickness=2)
