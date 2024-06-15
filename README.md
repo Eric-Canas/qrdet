@@ -40,7 +40,14 @@ cv2.imwrite(filename='resources/qreader_test_image_detections.jpeg', img=image)
 
 ## API Reference
 
-### QReader.detect(image, is_bgr = False, **kwargs)
+### QRDetector(model_size = 's', conf_th = 0.5, nms_iou = 0.3, weights_folder = '<qrdet_package>/.model')
+
+- ``model_size``: **"n"|"s"|"m"|"l"**. Size of the model to load. Smaller models will be faster, while larger models will be more capable for difficult situations. Default: `'s'`.
+- ``conf_th``: **float**. Confidence threshold to consider that a detection is valid. Incresing this value will reduce _false positives_ while decreasing will reduce _false_negatives_. Default: `0.5`.
+- ``nms_iou``: **float**. _Intersection over Union_ (IoU) threshold for _Non-Maximum Suppression_ (NMS). NMS is a technique used to eliminate redundant bounding boxes for the same object. Increase this number if you find problems with duplicated detections. Default: `0.3`
+- ``weights_folder``: **str**. Folder where detection model will be downloaded. By default, it points out to an internal folder within the package, making sure that it gets correctly removed when uninstalling. You could need to change it when working in environments like [AWS Lambda](https://aws.amazon.com/es/pm/lambda/) where only [/tmp folder is writable](https://docs.aws.amazon.com/lambda/latest/api/API_EphemeralStorage.html) as issued in #11. Default: `'<qrdet_package>/.model'`.
+
+### QRDetector.detect(image, is_bgr = False, **kwargs)
 
 - ``image``: **np.ndarray|'PIL.Image'|'torch.Tensor'|str**. `np.ndarray` of shape **(H, W, 3)**, `PIL.Image`, `Tensor` of shape **(1, 3, H, W)**, or `path`/`url` to the image to predict. `'screen'` for grabbing a screenshot.
 - ``is_bgr``: **bool**. If `True` the image is expected to be in **BGR**. Otherwise, it will be expected to be **RGB**. Only used when image is `np.ndarray` or `torch.tensor`. Default: `False`
