@@ -2,7 +2,10 @@ __pycache__/
 .idea/
 qrdet.egg-info/
 dist/
+build/
 .yolov7_qrdet/
 qrdet/.model/
 
 .env
+
+.DS_Store
