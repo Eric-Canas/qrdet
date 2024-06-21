@@ -1,6 +1,7 @@
-ultralytics
-quadrilateral-fitter
+ultralytics==8.2.38
+quadrilateral-fitter==1.8
 
-numpy
-requests
-tqdm
+numpy==1.26.4
+requests==2.32.3
+sympy==1.11.1
+tqdm==4.66.4
