@@ -19,6 +19,7 @@ setup(
         'numpy',
         'requests',
         'tqdm'
+        'simpy==1.11.1'
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
