@@ -79,7 +79,7 @@ This library is based on the following projects:
 
 ## Licensing clarifications
 
-This model was trained from scratch with a dataset tagged by myself. However, the base `qrdet` model is [YoloV8 from Ultralytics](https://docs.ultralytics.com/es/models/yolov8/), and was trained with their [`.train()`](https://docs.ultralytics.com/es/modes/train/#multi-gpu-training) pipeline which has *AGPL-3.0* license. Be aware of that when using the library to meet with that *AGPL-3.0* requirements when running inferences.
+This model was trained from scratch with a dataset tagged by myself. However, the base `qrdet` model is [YoloV8 from Ultralytics](https://docs.ultralytics.com/es/models/yolov8/), and was trained with their [`.train()`](https://docs.ultralytics.com/es/modes/train/#multi-gpu-training) pipeline which has *AGPL-3.0* license. Be aware of that when using the library to met with that *AGPL-3.0* requirements when running inferences.
 
 Offering an alternative pure MIT Licensed backend is a work in progress. Just waiting for [segmentation support](https://github.com/MultimediaTechLab/YOLO/issues/153#issuecomment-2676675255) on [MultimediaTechLab YOLO version](https://github.com/MultimediaTechLab/YOLO). 
-If you wanna offer some contribution, please help them to implement the support for segmentation training and inference <3.
+If you wanna offer some contribution, please help them to develop the support for segmentation training and inference <3.
